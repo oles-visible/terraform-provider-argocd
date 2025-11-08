@@ -203,11 +203,18 @@ func resourceArgoCDApplicationRead(ctx context.Context, d *schema.ResourceData, 
 	ids := strings.Split(d.Id(), ":")
 	appName := ids[0]
 	namespace := ids[1]
+	selector := ""
+
+	if len(ids) == 3 { // Use selector
+		selector = ids[2]
+	}
 
 	apps, err := si.ApplicationClient.List(ctx, &applicationClient.ApplicationQuery{
 		Name:         &appName,
 		AppNamespace: &namespace,
+		Selector:     &selector,
 	})
+
 	if err != nil {
 		if strings.Contains(err.Error(), "NotFound") {
 			d.SetId("")
